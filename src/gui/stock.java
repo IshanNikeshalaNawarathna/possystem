@@ -23,13 +23,19 @@ import model.MySQL;
  * @author user
  */
 public class stock extends javax.swing.JFrame {
-    
+
     HashMap<String, String> brandMap = new HashMap<>();
-    
+
     private grn GRN;
-    
+
     public void setGRN(grn GRN) {
         this.GRN = GRN;
+    }
+
+    private invoice Invoice;
+
+    public void setInvoice(invoice Invoice) {
+        this.Invoice = Invoice;
     }
 
     //private GRN grn;
@@ -43,91 +49,91 @@ public class stock extends javax.swing.JFrame {
         loadProduct();
         loadStork();
     }
-    
+
     private void loadBrand() {
         try {
             ResultSet resultset = MySQL.execute("SELECT * FROM `brand`");
-            
+
             Vector<String> vector = new Vector<>();
             vector.add("Select");
-            
+
             while (resultset.next()) {
                 vector.add(resultset.getString("name"));
                 brandMap.put(resultset.getString("name"), resultset.getString("id"));
             }
-            
+
             jComboBox1.setModel(new DefaultComboBoxModel<>(vector));
-            
+
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-    
+
     private void clera() {
-        
+
         jTable2.clearSelection();
         jTextField1.setText("");
         jTextField2.setText("");
         jTextField3.setText("");
         jComboBox1.setSelectedIndex(0);
         jButton1.setEnabled(true);
-        
+
     }
-    
+
     private void loadProduct() {
-        
+
         try {
             ResultSet resultSet = MySQL.execute("SELECT * FROM `product` INNER JOIN `brand` ON `product`.`brand_id`=`brand`.`id`");
-            
+
             DefaultTableModel table = (DefaultTableModel) jTable2.getModel();
             table.setRowCount(0);
-            
+
             while (resultSet.next()) {
                 Vector<String> vector = new Vector<>();
                 vector.add(resultSet.getString("product.id"));
                 vector.add(resultSet.getString("brand.name"));
                 vector.add(resultSet.getString("product.name"));
-                
+
                 table.addRow(vector);
-                
+
             }
-            
+
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
+
     }
-    
+
     private void loadStork() {
-        
+
         try {
-            
+
             int row = jTable2.getSelectedRow();
             String query = "SELECT * FROM `stock` "
                     + "INNER JOIN `product` ON `stock`.`product_id`=`product`.`id`"
                     + " INNER JOIN `brand` ON `product`.`brand_id`=`brand`.`id`";
-            
+
             if (row != -1) {
                 String pid = String.valueOf(jTable2.getValueAt(row, 0));
                 query += "WHERE `stock`.`product_id`='" + pid + "'";
             }
-            
+
             if (query.contains("WHERE")) {
                 query += "AND ";
             } else {
                 query += "WHERE ";
             }
-            
+
             double min_price = 0;
             double max_price = 0;
-            
+
             if (!jFormattedTextField2.getText().isEmpty()) {
                 min_price = Double.parseDouble(jFormattedTextField2.getText());
             }
             if (!jFormattedTextField3.getText().isEmpty()) {
                 max_price = Double.parseDouble(jFormattedTextField3.getText());
             }
-            
+
             if (min_price > 0 && max_price == 0) {
                 query += "`stock`.`selling_price` > '" + min_price + "'";
             } else if (min_price == 0 && max_price > 0) {
@@ -135,12 +141,12 @@ public class stock extends javax.swing.JFrame {
             } else if (min_price > 0 && max_price > 0) {
                 query += "`stock`.`selling_price` > '" + min_price + "' AND `stock`.`selling_price` < '" + max_price + "'";
             }
-            
+
             Date start = null;
             Date end = null;
-            
+
             SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-            
+
             if (jDateChooser1.getDate() != null) {
                 start = jDateChooser1.getDate();
                 query += "`stock`.`exp`>'" + format.format(start) + "'";
@@ -149,14 +155,14 @@ public class stock extends javax.swing.JFrame {
                 end = jDateChooser2.getDate();
                 query += "`stock`.`exp`<'" + format.format(end) + "'";
             }
-            
+
             String sort = String.valueOf(jComboBox2.getSelectedItem());
-            
+
             query += "ORDER BY ";
-            
+
             query = query.replace("WHERE ORDER BY ", "ORDER BY ");
             query = query.replace("AND ORDER BY ", "ORDER BY ");
-            
+
             if (sort.equals("Stock ID ASC")) {
                 query += "`stock`.`id` ASC";
             } else if (sort.equals("Stock ID DESC")) {
@@ -180,10 +186,10 @@ public class stock extends javax.swing.JFrame {
             }
 //
             ResultSet resultSet = MySQL.execute(query);
-            
+
             DefaultTableModel table = (DefaultTableModel) jTable1.getModel();
             table.setRowCount(0);
-            
+
             while (resultSet.next()) {
                 Vector<String> vector = new Vector<>();
                 vector.add(resultSet.getString("stock.id"));
@@ -193,15 +199,15 @@ public class stock extends javax.swing.JFrame {
                 vector.add(resultSet.getString("qty"));
                 vector.add(resultSet.getString("mfg"));
                 vector.add(resultSet.getString("exp"));
-                
+
                 table.addRow(vector);
-                
+
             }
-            
+
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
+
     }
 
     /**
@@ -261,6 +267,11 @@ public class stock extends javax.swing.JFrame {
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit [columnIndex];
+            }
+        });
+        jTable1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jTable1MouseClicked(evt);
             }
         });
         jScrollPane1.setViewportView(jTable1);
@@ -549,7 +560,7 @@ public class stock extends javax.swing.JFrame {
         String id = jTextField1.getText();
         String brand = String.valueOf(jComboBox1.getSelectedItem());
         String name = jTextField3.getText();
-        
+
         if (id.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Please enter Product ID", "warning", JOptionPane.INFORMATION_MESSAGE);
         } else if (brand.isEmpty()) {
@@ -557,11 +568,11 @@ public class stock extends javax.swing.JFrame {
         } else if (name.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Please enter Product Name", "warning", JOptionPane.INFORMATION_MESSAGE);
         } else {
-            
+
             try {
-                
+
                 ResultSet resultset = MySQL.execute("SELECT * FROM `product` WHERE `name`='" + name + "' AND `brand_id`='" + brandMap.get(brand) + "' AND `id`!='" + id + "'");
-                
+
                 if (resultset.next()) {
                     JOptionPane.showMessageDialog(this, "Product already added", "warning", JOptionPane.INFORMATION_MESSAGE);
                 } else {
@@ -570,13 +581,13 @@ public class stock extends javax.swing.JFrame {
                 }
                 loadProduct();
                 clera();
-                
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            
+
         }
-        
+
 
     }//GEN-LAST:event_jButton2ActionPerformed
 
@@ -584,23 +595,23 @@ public class stock extends javax.swing.JFrame {
         // TODO add your handling code here:
 
         String brandName = jTextField2.getText();
-        
+
         if (brandName.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Please Enter Brand Name", "warning", JOptionPane.INFORMATION_MESSAGE);
         } else {
             try {
                 ResultSet resultset = MySQL.execute("SELECT * FROM `brand` WHERE `name`='" + brandName + "'");
-                
+
                 if (resultset.next()) {
                     JOptionPane.showMessageDialog(this, "Brand already added", "warning", JOptionPane.INFORMATION_MESSAGE);
                 } else {
-                    
+
                     if (jComboBox1.getSelectedIndex() == 0) {
                         MySQL.execute("INSERT INTO `brand`(`brand`) VALUES('" + brandName + "')");
                         JOptionPane.showMessageDialog(this, "New Brand Added", "Success", JOptionPane.INFORMATION_MESSAGE);
                     } else {
                         int response = JOptionPane.showConfirmDialog(this, "Do you want to update this brand?", "Update", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
-                        
+
                         if (response == JOptionPane.YES_OPTION) {
                             MySQL.execute("UPDATE `brand` SET `name`='" + brandName + "' WHERE `brand  `='" + String.valueOf(jComboBox1.getSelectedItem()) + "'");
                             JOptionPane.showMessageDialog(this, "Brand Update", "Success", JOptionPane.INFORMATION_MESSAGE);
@@ -608,12 +619,12 @@ public class stock extends javax.swing.JFrame {
                     }
                     loadBrand();
                     jTextField2.setText("");
-                    
+
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            
+
         }
 
     }//GEN-LAST:event_jButton3ActionPerformed
@@ -624,7 +635,7 @@ public class stock extends javax.swing.JFrame {
         String id = jTextField1.getText();
         String brand = String.valueOf(jComboBox1.getSelectedItem());
         String name = jTextField3.getText();
-        
+
         if (id.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Please enter Product ID", "warning", JOptionPane.INFORMATION_MESSAGE);
         } else if (brand.isEmpty()) {
@@ -632,26 +643,26 @@ public class stock extends javax.swing.JFrame {
         } else if (name.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Please enter Product Name", "warning", JOptionPane.INFORMATION_MESSAGE);
         } else {
-            
+
             try {
-                
+
                 ResultSet resultset = MySQL.execute("SELECT * FROM `product` WHERE `id`='" + id + "' OR (`name`='" + name + "' AND `brand_id`='" + brandMap.get(brand) + "')");
-                
+
                 if (resultset.next()) {
                     JOptionPane.showMessageDialog(this, "Product already added", "warning", JOptionPane.INFORMATION_MESSAGE);
                 } else {
                     MySQL.execute("INSERT INTO `product`VALUES('" + id + "','" + brandMap.get(brand) + "','" + name + "')");
-                    
+
                     loadProduct();
                     clera();
-                    
+
                     JOptionPane.showMessageDialog(this, "New product added", "warning", JOptionPane.INFORMATION_MESSAGE);
                 }
-                
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            
+
         }
 
     }//GEN-LAST:event_jButton1ActionPerformed
@@ -660,13 +671,12 @@ public class stock extends javax.swing.JFrame {
         // TODO add your handling code here:
 
         int row = jTable2.getSelectedRow();
-        
+
         jTextField1.setText(String.valueOf(jTable2.getValueAt(row, 0)));
         jButton1.setEnabled(false);
         jComboBox1.setSelectedItem(String.valueOf(jTable2.getValueAt(row, 1)));
         jTextField3.setText(String.valueOf(jTable2.getValueAt(row, 2)));
-        
-       
+
         if (evt.getClickCount() == 2) {
             if (GRN != null) {
                 GRN.getjTextField1().setText(String.valueOf(jTable2.getValueAt(row, 0)));
@@ -674,14 +684,12 @@ public class stock extends javax.swing.JFrame {
                 GRN.getjLabel16().setText(String.valueOf(jTable2.getValueAt(row, 2)));
                 GRN.getjTextField5().grabFocus();
                 this.dispose();
-                
-                
+
             }
         }
 
-         loadStork();
-        
-        
+        loadStork();
+
         //if(evt.getClickCount() == 2){
 //        if(grn!=null){
 //        grn.getjTextField4().setText(String.valueOf(jTable2.getValueAt(row, 0)));
@@ -714,7 +722,7 @@ public class stock extends javax.swing.JFrame {
 
         String min_price = jFormattedTextField2.getText();
         String max_price = jFormattedTextField3.getText();
-        
+
         if (Double.parseDouble(min_price) > Double.parseDouble(max_price)) {
             JOptionPane.showMessageDialog(this, "min price greater than max price", "warning", JOptionPane.INFORMATION_MESSAGE);
             jFormattedTextField3.setText("");
@@ -747,7 +755,7 @@ public class stock extends javax.swing.JFrame {
         // TODO add your handling code here:
         Date date1 = jDateChooser1.getDate();
         Date date2 = jDateChooser2.getDate();
-        
+
         if (date1 == null) {
             JOptionPane.showMessageDialog(this, "Plasea select your starting date", "warning", JOptionPane.INFORMATION_MESSAGE);
         } else if (date2 == null) {
@@ -760,6 +768,29 @@ public class stock extends javax.swing.JFrame {
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton6ActionPerformed
+
+    private void jTable1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTable1MouseClicked
+        // TODO add your handling code here:
+
+        if (evt.getClickCount() == 2) {
+
+            if (Invoice != null) {
+                int row = jTable1.getSelectedRow();
+                Invoice.getjTextField1().setText(String.valueOf(jTable1.getValueAt(row, 0)));
+                Invoice.getjLabel12().setText(String.valueOf(jTable1.getValueAt(row, 1)));
+                Invoice.getjLabel16().setText(String.valueOf(jTable1.getValueAt(row, 2)));
+                Invoice.getjTextField6().setText(String.valueOf(jTable1.getValueAt(row, 3)));
+                Invoice.getjLabel22().setText(String.valueOf(jTable1.getValueAt(row, 4)));
+                Invoice.getjLabel25().setText(String.valueOf(jTable1.getValueAt(row, 5)));
+                Invoice.getjLabel4().setText(String.valueOf(jTable1.getValueAt(row, 6)));
+
+                this.dispose();
+
+            }
+
+        }
+
+    }//GEN-LAST:event_jTable1MouseClicked
 
     /**
      * @param args the command line arguments

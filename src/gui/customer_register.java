@@ -17,9 +17,12 @@ import model.MySQL;
  */
 public class customer_register extends javax.swing.JFrame {
 
-    /**
-     * Creates new form customer_register
-     */
+    private invoice Invoice;
+
+    public void setInvoice(invoice Invoice) {
+        this.Invoice = Invoice;
+    }
+
     public customer_register() {
         initComponents();
         loadCustomer("first_name", "ASC", "0");
@@ -438,6 +441,15 @@ public class customer_register extends javax.swing.JFrame {
         jTextField4.setText(email);
 
         jButton1.setEnabled(false);
+
+        if (evt.getClickCount() == 2) {
+            if (Invoice != null) {
+                Invoice.getjTextField2().setText(String.valueOf(jTable2.getValueAt(row, 0)));
+                Invoice.getjLabel3().setText(String.valueOf(jTable2.getValueAt(row, 1) + " " + String.valueOf(jTable2.getValueAt(row, 2))));
+                Invoice.getjLabel24().setText(String.valueOf(jTable2.getValueAt(row, 4)));
+                this.dispose();
+            }
+        }
 
         try {
             ResultSet resultSet = MySQL.execute("SELECT * FROM `invoice` WHERE `customer_mobile`='" + mobile + "'");
