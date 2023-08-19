@@ -65,7 +65,7 @@ public class invoice extends javax.swing.JFrame {
     }
 
     public JLabel getjLabel25() { // mfg date
-        return  jLabel25;
+        return jLabel25;
     }
 
     public JLabel getjLabel4() { //efg date
@@ -76,15 +76,63 @@ public class invoice extends javax.swing.JFrame {
         return jLabel22;
     }
 
-    public JTextField getjTextField6() { 
+    public JTextField getjTextField6() {
         return jTextField6;
     }
 
     public JLabel getjLabel24() { //ponits
         return jLabel24;
     }
-    
-    
+
+    private double total = 0;
+    private double descount = 0;
+    private double payment = 0;
+    private double balance = 0;
+    private boolean withrowPonits = false;
+    private String paymentMethod = "Select";
+    private double newPonts = 0;
+
+    private void calculater() {
+
+        total -= descount;
+
+        if (total < 0) {
+            //descount error
+        } else {
+            //discount scuuss
+
+            if (withrowPonits) {
+
+                if (Double.parseDouble(jLabel24.getText()) == total) {
+                    total = 0;
+                    newPonts = 0;
+                    //no payment 
+                } else if (Double.parseDouble(jLabel24.getText()) < total) {
+                    newPonts = 0;
+                    total -= Double.parseDouble(jLabel24.getText());
+                    //payment requrite
+                } else {
+
+                    newPonts = Double.parseDouble(jLabel24.getText()) - total;
+                    total = 0;
+                  //no payment 
+                }
+
+            }
+
+        }
+
+        if (paymentMethod.equals("Select")) {
+            // warinning message
+        } else if (paymentMethod.equals("Cash")) {
+            balance = payment - total;
+
+        } else {
+            balance = total;
+            balance = 0;
+        }
+
+    }
 
     private void paymentMethod() {
 
@@ -94,7 +142,7 @@ public class invoice extends javax.swing.JFrame {
             Vector<String> vector = new Vector<>();
             vector.add("Select");
 
-            while(resultset.next()) {
+            while (resultset.next()) {
                 vector.add(resultset.getString("name"));
                 paymentMethodMap.put(resultset.getString("name"), resultset.getString("id"));
             }
@@ -283,8 +331,6 @@ public class invoice extends javax.swing.JFrame {
         jFormattedTextField1.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
         jFormattedTextField1.setText("0.00");
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-
         jTextField4.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
         jTextField4.setText("0.00");
 
@@ -325,8 +371,11 @@ public class invoice extends javax.swing.JFrame {
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addGap(10, 10, 10)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 840, Short.MAX_VALUE))
+                    .addGroup(jPanel3Layout.createSequentialGroup()
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(jButton5, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 205, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -348,15 +397,11 @@ public class invoice extends javax.swing.JFrame {
                                     .addComponent(jLabel1))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jComboBox1, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(jTextField4)
-                                    .addComponent(jFormattedTextField2, javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addGroup(jPanel3Layout.createSequentialGroup()
-                                        .addComponent(jCheckBox1)
-                                        .addGap(0, 0, Short.MAX_VALUE))))))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                        .addGap(10, 10, 10)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 840, Short.MAX_VALUE)))
+                                    .addComponent(jCheckBox1)
+                                    .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(jComboBox1, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(jTextField4)
+                                        .addComponent(jFormattedTextField2, javax.swing.GroupLayout.Alignment.TRAILING)))))))
                 .addGap(10, 10, 10))
         );
         jPanel3Layout.setVerticalGroup(
@@ -381,13 +426,13 @@ public class invoice extends javax.swing.JFrame {
                     .addComponent(jLabel8)
                     .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jFormattedTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel13))
-                .addGap(6, 6, 6)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jCheckBox1)
                     .addComponent(jLabel1))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jFormattedTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel13))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(10, Short.MAX_VALUE))
@@ -465,8 +510,8 @@ public class invoice extends javax.swing.JFrame {
                                 .addComponent(jLabel23)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jLabel24)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jButton3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel1Layout.createSequentialGroup()
