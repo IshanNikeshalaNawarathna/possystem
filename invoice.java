@@ -146,6 +146,13 @@ public class invoice extends javax.swing.JFrame {
         if (paymentMethod.equals("Cash")) {
             balance = payment - total;
             jTextField4.setEditable(true);
+
+            if (balance < 0) {
+                jButton5.setEnabled(false);
+            } else {
+                jButton5.setEnabled(true);
+            }
+
         } else {
             payment = total;
             balance = 0;
@@ -347,6 +354,11 @@ public class invoice extends javax.swing.JFrame {
         jLabel13.setText("Balance");
 
         jButton5.setText("Print Invoice");
+        jButton5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton5ActionPerformed(evt);
+            }
+        });
 
         jFormattedTextField1.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
         jFormattedTextField1.setText("0.00");
@@ -716,6 +728,51 @@ public class invoice extends javax.swing.JFrame {
         // TODO add your handling code here:
         calculater();
     }//GEN-LAST:event_jCheckBox1ItemStateChanged
+
+    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+        // TODO add your handling code here:
+
+        String ID = jTextField8.getText();
+        String coustmerMobile = jTextField2.getText();
+        String employeeEmail = jLabel18.getText();
+        String dateTime = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+        String paidAmount = jTextField4.getText();
+        String paymentMethodId = paymentMethodMap.get(String.valueOf(jComboBox1.getSelectedItem()));
+        String descount = String.valueOf(jTextField3.getText());
+
+        if (paidAmount.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Plase Type your Amount.", "warning", JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            try {
+
+                MySQL.execute("INSERT INTO `invoice`(`id`,`date_time`,`paid_amount`,`customer_mobile`,`employee_email`,`payment_method_id`,`discount`)"
+                        + "VALUES('" + ID + "','" + dateTime + "','" + paidAmount + "','" + coustmerMobile + "','" + employeeEmail + "','" + paymentMethodId + "','" + descount + "')");
+
+                for (invoiceItem item : invoiceHashMap.values()) {
+
+                    MySQL.execute("INSERT INTO `invoice_item`(`qty`,`stock_id`,`invoice_id`)VALUES('" + item.getQty() + "','" + item.getStockID() + "','" + ID + "')");
+
+                    MySQL.execute("UPDATE `stock` SET `qty`=`qty`-'" + item.getQty() + "' WHERE `id`='" + item.getStockID() + "'");
+
+                }
+                
+                 double point = Double.parseDouble(jLabel24.getText()) / 100;
+                
+
+                if (withrowPonits) {
+                    newPonts=+point;
+                    MySQL.execute("UPDATE `customer` SET `points`='" + newPonts + "' WHERE `mobile`='" + coustmerMobile + "'");
+                }else{
+                       MySQL.execute("UPDATE `customer` SET `points`=`points`+'" + point + "' WHERE `mobile`='" + coustmerMobile + "'");
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+
+    }//GEN-LAST:event_jButton5ActionPerformed
 
     /**
      * @param args the command line arguments
