@@ -18,6 +18,10 @@ import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 import model.MySQL;
 import model.invoiceItem;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.data.JRTableModelDataSource;
+import net.sf.jasperreports.view.JasperViewer;
 
 /**
  *
@@ -94,6 +98,28 @@ public class invoice extends javax.swing.JFrame {
 
     private void calculater() {
 
+        if (jTextField3.getText().isEmpty()) {
+            descount = 0;
+        } else {
+            descount = Double.parseDouble(jTextField3.getText());
+        }
+
+        if (jTextField4.getText().isEmpty()) {
+            payment = 0;
+        } else {
+            payment = Double.parseDouble(jTextField4.getText());
+        }
+
+        total = Double.parseDouble(jFormattedTextField1.getText());
+
+        if (jCheckBox1.isSelected()) {
+            withrowPonits = true;
+        } else {
+            withrowPonits = false;
+        }
+
+        paymentMethod = String.valueOf(jComboBox1.getSelectedItem());
+
         total -= descount;
 
         if (total < 0) {
@@ -115,23 +141,29 @@ public class invoice extends javax.swing.JFrame {
 
                     newPonts = Double.parseDouble(jLabel24.getText()) - total;
                     total = 0;
-                  //no payment 
+                    //no payment 
                 }
 
             }
 
         }
-
-        if (paymentMethod.equals("Select")) {
-            // warinning message
-        } else if (paymentMethod.equals("Cash")) {
+        if (paymentMethod.equals("Cash")) {
             balance = payment - total;
+            jTextField4.setEditable(true);
+
+            if (balance < 0) {
+                jButton5.setEnabled(false);
+            } else {
+                jButton5.setEnabled(true);
+            }
 
         } else {
-            balance = total;
+            payment = total;
             balance = 0;
+            jTextField4.setText(String.valueOf(payment));
+            jTextField4.setEditable(false);
         }
-
+        jFormattedTextField2.setText(String.valueOf(balance));
     }
 
     private void paymentMethod() {
@@ -140,7 +172,6 @@ public class invoice extends javax.swing.JFrame {
             ResultSet resultset = MySQL.execute("SELECT * FROM `payment_method`");
 
             Vector<String> vector = new Vector<>();
-            vector.add("Select");
 
             while (resultset.next()) {
                 vector.add(resultset.getString("name"));
@@ -161,7 +192,7 @@ public class invoice extends javax.swing.JFrame {
         table.setRowCount(0);
 
 //        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        double total = 0;
+        total = 0;
 
         for (invoiceItem invoice : invoiceHashMap.values()) {
 
@@ -182,7 +213,7 @@ public class invoice extends javax.swing.JFrame {
 
         }
         jFormattedTextField1.setText(String.valueOf(total));
-
+        calculater();
     }
 
     /**
@@ -327,12 +358,34 @@ public class invoice extends javax.swing.JFrame {
         jLabel13.setText("Balance");
 
         jButton5.setText("Print Invoice");
+        jButton5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton5ActionPerformed(evt);
+            }
+        });
 
         jFormattedTextField1.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
         jFormattedTextField1.setText("0.00");
 
+        jTextField3.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                jTextField3KeyReleased(evt);
+            }
+        });
+
+        jComboBox1.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                jComboBox1ItemStateChanged(evt);
+            }
+        });
+
         jTextField4.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
         jTextField4.setText("0.00");
+        jTextField4.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                jTextField4KeyReleased(evt);
+            }
+        });
 
         jFormattedTextField2.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
         jFormattedTextField2.setText("0.00");
@@ -358,6 +411,11 @@ public class invoice extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(jTable1);
 
+        jCheckBox1.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                jCheckBox1ItemStateChanged(evt);
+            }
+        });
         jCheckBox1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jCheckBox1ActionPerformed(evt);
@@ -654,6 +712,89 @@ public class invoice extends javax.swing.JFrame {
     private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox1ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jCheckBox1ActionPerformed
+
+    private void jTextField3KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField3KeyReleased
+        // TODO add your handling code here:
+        calculater();
+    }//GEN-LAST:event_jTextField3KeyReleased
+
+    private void jComboBox1ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jComboBox1ItemStateChanged
+        // TODO add your handling code here:
+        calculater();
+    }//GEN-LAST:event_jComboBox1ItemStateChanged
+
+    private void jTextField4KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField4KeyReleased
+        // TODO add your handling code here:
+        calculater();
+    }//GEN-LAST:event_jTextField4KeyReleased
+
+    private void jCheckBox1ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jCheckBox1ItemStateChanged
+        // TODO add your handling code here:
+        calculater();
+    }//GEN-LAST:event_jCheckBox1ItemStateChanged
+
+    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+        // TODO add your handling code here:
+
+        String ID = jTextField8.getText();
+        String coustmerMobile = jTextField2.getText();
+        String employeeEmail = jLabel18.getText();
+        String dateTime = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+        String paidAmount = jTextField4.getText();
+        String paymentMethodId = paymentMethodMap.get(String.valueOf(jComboBox1.getSelectedItem()));
+        String descount = String.valueOf(jTextField3.getText());
+
+        if (paidAmount.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Plase Type your Amount.", "warning", JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            try {
+
+                MySQL.execute("INSERT INTO `invoice`(`id`,`date_time`,`paid_amount`,`customer_mobile`,`employee_email`,`payment_method_id`,`discount`)"
+                        + "VALUES('" + ID + "','" + dateTime + "','" + paidAmount + "','" + coustmerMobile + "','" + employeeEmail + "','" + paymentMethodId + "','" + descount + "')");
+
+                for (invoiceItem item : invoiceHashMap.values()) {
+
+                    MySQL.execute("INSERT INTO `invoice_item`(`qty`,`stock_id`,`invoice_id`)VALUES('" + item.getQty() + "','" + item.getStockID() + "','" + ID + "')");
+
+                    MySQL.execute("UPDATE `stock` SET `qty`=`qty`-'" + item.getQty() + "' WHERE `id`='" + item.getStockID() + "'");
+
+                }
+
+                double point = Double.parseDouble(jLabel24.getText()) / 100;
+
+                if (withrowPonits) {
+                    newPonts = +point;
+                    MySQL.execute("UPDATE `customer` SET `points`='" + newPonts + "' WHERE `mobile`='" + coustmerMobile + "'");
+                } else {
+                    MySQL.execute("UPDATE `customer` SET `points`=`points`+'" + point + "' WHERE `mobile`='" + coustmerMobile + "'");
+                }
+
+                String path = "src//report//shopReport.jasper";
+
+                HashMap<String, Object> parameters = new HashMap<>();
+                parameters.put("Parameter1", jFormattedTextField1.getText());
+                parameters.put("Parameter2", jTextField3.getText());
+                parameters.put("Parameter3", String.valueOf(jComboBox1.getSelectedItem()));
+                parameters.put("Parameter4", jTextField4.getText());
+                parameters.put("Parameter5", jFormattedTextField2.getText());
+
+                parameters.put("Parameter6", ID);
+                parameters.put("Parameter7", coustmerMobile);
+                parameters.put("Parameter8", employeeEmail);
+                parameters.put("Parameter9", dateTime);
+
+                JRTableModelDataSource dataSource = new JRTableModelDataSource(jTable1.getModel());
+
+                JasperPrint printReport = JasperFillManager.fillReport(path, parameters, dataSource);
+                JasperViewer.viewReport(printReport, true);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+
+    }//GEN-LAST:event_jButton5ActionPerformed
 
     /**
      * @param args the command line arguments
