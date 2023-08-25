@@ -24,9 +24,6 @@ public class Signin extends javax.swing.JFrame {
     private static void setEmployeeEmail(String employeeEmail) {
         Signin.employeeEmail = employeeEmail;
     }
-    
-    
-    
 
     public Signin() {
         initComponents();
@@ -147,14 +144,15 @@ public class Signin extends javax.swing.JFrame {
                 ResultSet resultset = MySQL.execute("SELECT * FROM `employee` WHERE `email`='" + email + "' AND `password`='" + password + "'");
 
                 if (resultset.next()) {
-                    
+
                     String fname = resultset.getString("first_name");
                     String lname = resultset.getString("last_name");
+                    String type = resultset.getString("employee_type_id");
 
-                  Home home = new Home(email,fname,lname);
-                  home.setVisible(true);
-                  this.dispose();
-                  
+                    Home home = new Home(email, fname, lname,type);
+                    home.setVisible(true);
+                    this.dispose();
+
                     setEmployeeEmail(email);
 
                 } else {

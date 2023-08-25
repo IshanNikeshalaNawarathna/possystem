@@ -34,8 +34,8 @@ public class invoice extends javax.swing.JFrame {
 
     public invoice() {
         initComponents();
-        //        jLabel18.setText(Signin.getEmployeeEmail());
-        jLabel18.setText("ishan@gmail.com");
+        jLabel18.setText(Signin.getEmployeeEmail());
+//        jLabel18.setText("ishan@gmail.com");
         generateInvoiceNumber();
         loadInvoice();
         paymentMethod();
