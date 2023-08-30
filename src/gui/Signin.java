@@ -6,6 +6,7 @@ package gui;
 
 import com.formdev.flatlaf.themes.FlatMacDarkLaf;
 import java.sql.ResultSet;
+import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import model.MySQL;
 
@@ -14,6 +15,8 @@ import model.MySQL;
  * @author user
  */
 public class Signin extends javax.swing.JFrame {
+
+    private String newType;
 
     private static String employeeEmail;
 
@@ -147,13 +150,14 @@ public class Signin extends javax.swing.JFrame {
 
                     String fname = resultset.getString("first_name");
                     String lname = resultset.getString("last_name");
-                    String type = resultset.getString("employee_type_id");
+                    String ty = resultset.getString("employee_type_id");
 
-                    Home home = new Home(email, fname, lname,type);
+                    Home home = new Home(email, fname, lname);
                     home.setVisible(true);
                     this.dispose();
 
                     setEmployeeEmail(email);
+                    setEmtype(ty);
 
                 } else {
                     JOptionPane.showMessageDialog(this, "Invalid Detalis", "warning", JOptionPane.INFORMATION_MESSAGE);
@@ -194,4 +198,14 @@ public class Signin extends javax.swing.JFrame {
     private javax.swing.JPasswordField jPasswordField1;
     private javax.swing.JTextField jTextField1;
     // End of variables declaration//GEN-END:variables
+
+    public String getNewType() {
+        return newType;
+    }
+
+    public void setNewType(String newType) {
+        this.newType = newType;
+    }
+
+   
 }
