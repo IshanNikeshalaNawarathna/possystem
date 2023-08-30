@@ -18,6 +18,10 @@ import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 import model.MySQL;
 import model.invoiceItem;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.data.JRTableModelDataSource;
+import net.sf.jasperreports.view.JasperViewer;
 
 /**
  *
@@ -30,8 +34,8 @@ public class invoice extends javax.swing.JFrame {
 
     public invoice() {
         initComponents();
-        //        jLabel18.setText(Signin.getEmployeeEmail());
-        jLabel18.setText("ishan@gmail.com");
+        jLabel18.setText(Signin.getEmployeeEmail());
+//        jLabel18.setText("ishan@gmail.com");
         generateInvoiceNumber();
         loadInvoice();
         paymentMethod();
@@ -188,7 +192,7 @@ public class invoice extends javax.swing.JFrame {
         table.setRowCount(0);
 
 //        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        double total = 0;
+        total = 0;
 
         for (invoiceItem invoice : invoiceHashMap.values()) {
 
@@ -755,16 +759,34 @@ public class invoice extends javax.swing.JFrame {
                     MySQL.execute("UPDATE `stock` SET `qty`=`qty`-'" + item.getQty() + "' WHERE `id`='" + item.getStockID() + "'");
 
                 }
-                
-                 double point = Double.parseDouble(jLabel24.getText()) / 100;
-                
+
+                double point = Double.parseDouble(jLabel24.getText()) / 100;
 
                 if (withrowPonits) {
-                    newPonts=+point;
+                    newPonts = +point;
                     MySQL.execute("UPDATE `customer` SET `points`='" + newPonts + "' WHERE `mobile`='" + coustmerMobile + "'");
-                }else{
-                       MySQL.execute("UPDATE `customer` SET `points`=`points`+'" + point + "' WHERE `mobile`='" + coustmerMobile + "'");
+                } else {
+                    MySQL.execute("UPDATE `customer` SET `points`=`points`+'" + point + "' WHERE `mobile`='" + coustmerMobile + "'");
                 }
+
+                String path = "src//report//shopReport.jasper";
+
+                HashMap<String, Object> parameters = new HashMap<>();
+                parameters.put("Parameter1", jFormattedTextField1.getText());
+                parameters.put("Parameter2", jTextField3.getText());
+                parameters.put("Parameter3", String.valueOf(jComboBox1.getSelectedItem()));
+                parameters.put("Parameter4", jTextField4.getText());
+                parameters.put("Parameter5", jFormattedTextField2.getText());
+
+                parameters.put("Parameter6", ID);
+                parameters.put("Parameter7", coustmerMobile);
+                parameters.put("Parameter8", employeeEmail);
+                parameters.put("Parameter9", dateTime);
+
+                JRTableModelDataSource dataSource = new JRTableModelDataSource(jTable1.getModel());
+
+                JasperPrint printReport = JasperFillManager.fillReport(path, parameters, dataSource);
+                JasperViewer.viewReport(printReport, true);
 
             } catch (Exception e) {
                 e.printStackTrace();
