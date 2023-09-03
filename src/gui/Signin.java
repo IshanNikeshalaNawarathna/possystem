@@ -16,7 +16,7 @@ import model.MySQL;
  */
 public class Signin extends javax.swing.JFrame {
 
-    private String newType;
+    private static String newType;
 
     private static String employeeEmail;
 
@@ -26,6 +26,14 @@ public class Signin extends javax.swing.JFrame {
 
     private static void setEmployeeEmail(String employeeEmail) {
         Signin.employeeEmail = employeeEmail;
+    }
+
+    public static String getNewType() {
+        return newType;
+    }
+
+    public static void setNewType(String aNewType) {
+        newType = aNewType;
     }
 
     public Signin() {
@@ -144,20 +152,18 @@ public class Signin extends javax.swing.JFrame {
 
             try {
 
-                ResultSet resultset = MySQL.execute("SELECT * FROM `employee` WHERE `email`='" + email + "' AND `password`='" + password + "'");
+                ResultSet resultset = MySQL.execute("SELECT * FROM `employee` INNER JOIN `employee_type` ON `employee`.`employee_type_id`=`employee_type`.`id` WHERE `email`='" + email + "' AND `password`='" + password + "'");
 
                 if (resultset.next()) {
 
                     String fname = resultset.getString("first_name");
                     String lname = resultset.getString("last_name");
-                    String ty = resultset.getString("employee_type_id");
-
+                    String ty = resultset.getString("employee_type.name");
+                    setEmployeeEmail(email);
+                    setNewType(ty);
                     Home home = new Home(email, fname, lname);
                     home.setVisible(true);
                     this.dispose();
-
-                    setEmployeeEmail(email);
-                    setEmtype(ty);
 
                 } else {
                     JOptionPane.showMessageDialog(this, "Invalid Detalis", "warning", JOptionPane.INFORMATION_MESSAGE);
@@ -199,13 +205,4 @@ public class Signin extends javax.swing.JFrame {
     private javax.swing.JTextField jTextField1;
     // End of variables declaration//GEN-END:variables
 
-    public String getNewType() {
-        return newType;
-    }
-
-    public void setNewType(String newType) {
-        this.newType = newType;
-    }
-
-   
 }

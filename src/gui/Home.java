@@ -5,27 +5,15 @@
 package gui;
 
 public class Home extends javax.swing.JFrame {
-
+    
     public Home(String email, String lname, String fname) {
         initComponents();
         jLabel2.setText(lname + " " + fname);
         jLabel4.setText(email);
-//        type();
-    }
-
-    private void type() {
-        Signin sign = new Signin();
-        if (sign.getEmtype().equals("employee_type_id")) {
-            jButton3.setVisible(false);
-            jButton2.setVisible(false);
-        } else {
-            jButton3.setVisible(true);
-            jButton2.setVisible(true);
+        if (Signin.getNewType().equals("Cashiya")) {
+            jButton2.setEnabled(false);
+            jButton3.setEnabled(false);
         }
-//        jButton4.setEnabled(true);
-//        jButton5.setEnabled(true);
-//        jButton6.setEnabled(true);
-//        jButton1.setEnabled(true);
     }
 
     /**
@@ -190,7 +178,7 @@ public class Home extends javax.swing.JFrame {
 
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
         // TODO add your handling code here:
-type();
+//        type();
         stock sk = new stock();
         sk.setVisible(true);
 
@@ -198,7 +186,7 @@ type();
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
         // TODO add your handling code here:
-type();
+//        type();
         invoice in = new invoice();
         in.setVisible(true);
 
@@ -206,7 +194,7 @@ type();
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         // TODO add your handling code here:
-type();
+//        type();
         grn GRN = new grn();
         GRN.setVisible(true);
 
@@ -214,7 +202,7 @@ type();
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         // TODO add your handling code here:
-type();
+//        type();
         empolyee_register emp = new empolyee_register();
         emp.setVisible(true);
         //        if(type == string)
@@ -222,7 +210,7 @@ type();
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:
-type();
+//        type();
         suppllerRegister sp = new suppllerRegister();
         sp.setVisible(true);
 
@@ -230,7 +218,7 @@ type();
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
-type();
+//        type();
         customer_register creg = new customer_register();
         creg.setVisible(true);
 
