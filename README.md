@@ -1,2 +1,2 @@
 # possystem
-java posh system
+java pos system
